@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+}
+
+li a {
+  display: block;
+  color: #000;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color on hover */
+li a:hover {
+  background-color: #555;
+  color: white;
+}
+.active{
+    background-color: #42d4f5;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<h2>Tasks</h2>
+
+<ul id="myTasks"/>
+<script>
+var json = { //The data in JSON Format
+    "tasks": [
+        {
+            "taskName": "Develop Plan",
+            "schedule": "weekly"
+        },
+        {
+            "taskName": "Assign Task",
+            "schedule": "daily",
+            "repeat": "1 hours"
+        },
+        {
+            "taskName": "Obtain Hardware",
+            "schedule": "weekly"
+        },
+        {
+            "taskName": "Programming",
+            "schedule": "daily",
+            "repeat": "3 hours",
+        }, 
+        {
+            "taskName": "Install Hardware",
+            "schedule": "monthly"
+        },
+        {
+            "taskName": "Program Test",
+            "schedule": "daily",
+            "repeat": "3 hours"
+        },
+        {
+            "taskName": "User Manual",
+            "schedule": "weekly",
+        },
+        {
+            "taskName": "User Training",
+            "schedule": "monthly",
+            "repeat": "10 days",
+        }
+    ]
+}
+
+
+function Tasks(){
+    this.tasks = this.fill();
+}
+Tasks.prototype.fill = function(){
+    return json.tasks.map(function(task){
+        return new Task(task.taskName, task.schedule, task.repeat, task.startTime);
+    })
+}
+Tasks.prototype.add = function(){
+    this.tasks.forEach(task => {
+        task.add();
+    });
+}
+Tasks.prototype.check = function() {
+    this.tasks.forEach(task => {
+        task.check();
+    });
+}
+
+function Task(taskName, schedule, repeat, startTime){
+    this.taskName = taskName;
+    this.schedule = schedule;
+    this.repeat = repeat;
+    this.startTime = startTime;
+    this.el = null; //DOM el of Task
+    this.isActive = false;//flag for status of task
+}
+Task.prototype.check = function() {
+    var today = new Date();
+    var schedule = this.schedule;
+    //HERE we can add the condition to start the task or repeat it or end it and take care for more cases that i cover here.
+    if(schedule == 'daily'){
+        if(today.getHours() === 09){ //Make active every day when we start work.
+            this.el.classList.add("active");
+            this.isActive = true;
+        } else if(today.getHours() === 18){ //Make passive when we leave work 
+            this.el.classList.remove("active");
+            this.isActive = false;
+        }
+    } else if(schedule == 'weekly' && today.getDay() === 1) {
+        this.el.classList.add("active");
+        this.isActive = true;
+    } else if(schedule == 'monthly' && today.getDate() === 1) {
+        this.el.classList.add("active");
+        this.isActive = true;
+    }
+}
+Task.prototype.add = function(){
+    var taskName = this.taskName;
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.setAttribute('href', '#'+taskName);
+    li.onclick = function(){
+        var status = this.isActive;
+        alert(status ? "Active" : "No Active");
+    }.bind(this);
+
+    var text = document.createTextNode(taskName);
+
+    a.appendChild(text);
+    li.appendChild(a)
+    document.getElementById("myTasks").appendChild(li);
+    this.el = li;
+}
+
+
+//Start a new instance of Tasks.We have only one instance so we can use singleton design pattern.
+var tasks = new Tasks();
+tasks.add();
+// a simple a way to call a function with a period time.
+setInterval(function() { 
+    tasks.check(); 
+    }, 1000);
+</script>
+</body>
+</html>
