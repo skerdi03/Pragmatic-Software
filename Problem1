@@ -1,0 +1,31 @@
+  String.prototype.replaceAt=function(index, replacement) {   //I add a method to String property to replase the found values.
+        return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+    }
+    var haystack = "vnk2435kvabco8awkh125kjneytbcd12qjhb4acd123zmnbqwnw4t";
+    var needle = "abcd1234";
+    var threshold = 3;
+
+    var i,j, arr = [], needleLength = needle.length;
+    for(j=0; j<needleLength-threshold; j++){
+        for(i=needleLength; i>=threshold+j; i--){
+            var smallNeedle = needle.slice(j,i);
+            var index = haystack.indexOf(smallNeedle);
+            if(index != -1) {
+                var smallNeedleLength = smallNeedle.length;
+                var str = '';
+                for(var k = 0; k<smallNeedleLength; k++)  {
+                    str += smallNeedleLength[k] == '?' ? '!' : '?'; //remove the found value with unique value.
+                }//remove the found value with something uniq.
+                haystack = haystack.substr(0, index) + str + haystack.substr(smallNeedleLength+index);
+                arr.push({  //fill the array with found values.
+                        "length": smallNeedle.length, 
+                        "offsetHaystack": index, 
+                        "offsetNeedle": needle.indexOf(smallNeedle)
+                    });
+                i++;    //we increment i to search again if the needle exist again in haystack.
+            }
+        }
+    }
+    arr.forEach(function(el){   //Display the results.
+        console.log("sequence of length = " + el.length + " found at haystack offset " + el.offsetHaystack + ", needle offset " + el.offsetNeedle);
+    })
